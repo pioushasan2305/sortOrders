@@ -7,7 +7,7 @@ import shutil
 import sys
 import random
 import string
-def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
+def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, module, best_first_index):
 
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
     start_time = time.time()
@@ -15,7 +15,7 @@ def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
     sorted_orders = []
 
     # Create nested directory structure
-    parent_dir_name = "pairwise max interclass"
+    parent_dir_name = "pairwise best first absolute interclass"
     parent_dir_path = os.path.join(parent_dir_name)
 
         # Create the parent directory without module name
@@ -45,6 +45,7 @@ def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
 
     # Sorting logic
     file_count = tie_break_count = tie_of_tie_break_count = 0
+    first_flag=0
     while orders:
         max_cover = max_method_count = 0
         max_order_index = -1
@@ -55,6 +56,10 @@ def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
             break
 
         for idx, order in enumerate(orders):
+            if first_flag == 0:
+                max_order_index=best_first_index
+                first_flag=1
+                break
             current_combinations = rank_orders.get_consecutive_t_combinations(order, t)
             current_cover = len(current_combinations & current_superset)
 
@@ -109,7 +114,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <path_to_csv_file>")
         sys.exit(1)
-    parent_dir_name = "pairwise max interclass OD"
+    parent_dir_name = "pairwise best first absolute interclass OD"
     parent_dir_path = os.path.join(parent_dir_name)
 
     # Create the parent directory without module name
@@ -149,7 +154,10 @@ if __name__ == "__main__":
             order_max_inter_class_copy=copy.deepcopy(orders)
             order_summary_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
-            sorted_orders_max_inter_class,total_time_taken_to_sort = sort_orders_based_on_max_inter_class(order_max_inter_class_copy, t ,method_summary ,module)
+            order_sorted_copy_best_first= copy.deepcopy(orders)
+            best_first_index=rank_orders.get_best_first_orders_index(order_sorted_copy_best_first,method_summary,t)
+            print(best_first_index)
+            sorted_orders_max_inter_class,total_time_taken_to_sort =sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index)
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 

@@ -9,6 +9,7 @@ import csv
 import random
 import copy
 from collections import defaultdict
+
 def get_orders(target_path):
     orders = []
     for filename in os.listdir(target_path):
@@ -20,7 +21,7 @@ def get_orders(target_path):
                 order = parsed["testOrder"]
                 orders.append(order)
     return orders
-""" def get_orders(target_path):
+def get_orders_for_line_no(target_path):
     orders = []
 
     # Iterate over each file in the directory
@@ -34,7 +35,24 @@ def get_orders(target_path):
                 current_order = [int(line.strip()) for line in file.readlines()]
                 orders.append(current_order)
 
-    return orders """
+    return orders
+def replace_numbers_with_strings(matrix, file_path):
+    start_time = time.time()  # Start time
+
+    # Read the file and store each line in a list
+    with open(file_path, 'r') as file:
+        lines = file.read().splitlines()
+
+    # Replace the numbers in the matrix with corresponding strings
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            if matrix[i][j] < len(lines):
+                matrix[i][j] = lines[matrix[i][j]]
+
+    end_time = time.time()  # End time
+    total_time = end_time - start_time  # Calculate total time
+    #print(f"Total time taken for string to int : {total_time:.4f} seconds")
+    return matrix,total_time
 def get_class_name(test_name):
     return '.'.join(test_name.split('.')[:-1])
 
@@ -323,35 +341,41 @@ def get_method_count_score_for_interclass_pairs(interclass_pairs, method_summary
         total_method_count += method_summary.get(class1, 0) * method_summary.get(class2, 0)
     return total_method_count
 def get_best_first_orders_index(orders,method_summary,t):
-    current_superset = create_superset_from_all_orders(orders, t)
-    order_interclass_copy = copy.deepcopy(orders)
-    interclass_superset = get_interclass_combinations(order_interclass_copy[0])
     max_order_index=-1
-    max_cover = max_interclass_cover = max_method_count = 0
+    max_method_count = 0
     for idx, order in enumerate(orders):
-        current_combinations = get_consecutive_t_combinations(order, t)
-        current_cover = len(current_combinations & current_superset)
 
-        # Interclass pairs coverage
         current_interclass_combinations = find_interclass_pairs(order)
-        current_interclass_cover = len(current_interclass_combinations & interclass_superset)
-        current_new_interclass_pairs=(current_interclass_combinations & interclass_superset)
 
         # Method count in test classes for interclass pairs
-        current_method_count = get_method_count_score_for_interclass_pairs(current_new_interclass_pairs, method_summary)
+        current_method_count = get_method_count_score_for_interclass_pairs(current_interclass_combinations, method_summary)
 
         #print(current_method_count)
         # Update max values if this order is better
-        if current_cover > max_cover or \
-           (current_cover == max_cover and current_interclass_cover > max_interclass_cover) or \
-           (current_cover == max_cover and current_interclass_cover == max_interclass_cover and current_method_count > max_method_count):
-            max_cover = current_cover
-            max_interclass_cover = current_interclass_cover
+        if (current_method_count > max_method_count):
             max_method_count = current_method_count
             max_order_index = idx
     if max_order_index == -1:
         max_order_index=0
     return max_order_index
+def get_worst_first_orders_index(orders,method_summary,t):
+    min_order_index=-1
+    min_method_count = 0
+    for idx, order in enumerate(orders):
+
+        current_interclass_combinations = find_interclass_pairs(order)
+
+        # Method count in test classes for interclass pairs
+        current_method_count = get_method_count_score_for_interclass_pairs(current_interclass_combinations, method_summary)
+
+        #print(current_method_count)
+        # Update max values if this order is better
+        if (current_method_count < min_order_index):
+            min_method_count = current_method_count
+            min_order_index = idx
+    if min_order_index == -1:
+        min_order_index=0
+    return min_order_index
 def sort_orders_based_on_coverage_optimized(orders, t, method_summary):
     current_superset = create_superset_from_all_orders(orders, t)
     order_interclass_copy = copy.deepcopy(orders)
@@ -523,8 +547,7 @@ def get_victims_or_brittle(github_slug, module, target_path_polluter_cleaner):
                     index += 1
 
     unique_victims_brittle_list = list(unique_victims_brittle)
-    #print(output)
-    #exit(0)
+    print(f"OD test- {len(unique_victims_brittle_list)}")
     return output, unique_victims_brittle_list
 def replace_names_with_line_numbers(output, unique_victims_brittle_list, filepath):
     # Step 1: Read file and create a dictionary mapping names to line numbers
@@ -561,8 +584,11 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
     first_remove_flag = True
     OD_dict_copy = copy.deepcopy(OD_dict)
     OD_dict_copy_fut= copy.deepcopy(OD_dict)
+    #print(OD_dict_copy_fut)
+    first_removal_order_count=0
 
     for order in sorted_orders:
+        #print(order)
         sorted_order_count += 1
         keys_to_remove = []
 
@@ -572,12 +598,12 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
             last_element = OD[-1]
 
             if last_element == 1 and OD[1] in unique_od_test_list:
-                is_consecutive = order.index(OD[0]) < order.index(OD[1]) if OD[0] in order and OD[1] in order else False
+                is_consecutive = order.index(OD[0]) + 1 == order.index(OD[1]) if OD[0] in order and OD[1] in order else False
                 if is_consecutive:
                     value = OD_dict.get(key)
                     #print(value)  # Output: value1
-                    #print("1")
-                    if key + 1 in OD_dict:
+                    #print(f"1-{key}")
+                    if (key + 1 in OD_dict) and (key + 1 not in keys_to_remove):
                         keys_to_remove.append(key)
                     else:
                         unique_od_test_list.remove(OD[1])
@@ -585,18 +611,19 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                         if first_od_detect_flag and first_remove_flag:
                             print(f"First removal from unique_od_test_list at sorted_order_count: {sorted_order_count}")
                             first_remove_flag = False
+                            first_removal_order_count=sorted_order_count
 
 
 
             elif last_element == 2 and OD[2] in unique_od_test_list:
-                is_consecutive = (order.index(OD[0]) < order.index(OD[1]) < order.index(OD[2])) if (OD[0] in order and OD[1] in order and OD[2] in order) else False
+                is_consecutive = (order.index(OD[0]) + 1 == order.index(OD[1]) and order.index(OD[0]) + 2 == order.index(OD[2])) if (OD[0] in order and OD[1] in order and OD[2] in order) else False
                 temp_first = OD[2]
                 temp_list = [od[1] if od[-1] == 6 else od[0] for k, od in OD_dict_copy.items() if (od[-1] == 6 and od[0] == temp_first ) or (od[-1] == 2 and od[2] == temp_first)]
                 if all(order.index(temp_first) < order.index(item) for item in temp_list) or is_consecutive or order.index(temp_first) == 0:
                     value = OD_dict.get(key)
                     #print(value)  # Output: value1
-                    #print("2")
-                    if key - 1 in OD_dict:
+                    #print(f"2-{key}")
+                    if (key - 1 in OD_dict) and (key - 1 not in keys_to_remove):
                         keys_to_remove.append(key)
                     else:
                         unique_od_test_list.remove(OD[2])
@@ -604,6 +631,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                         if first_od_detect_flag and first_remove_flag:
                             print(f"First removal from unique_od_test_list at sorted_order_count: {sorted_order_count}")
                             first_remove_flag = False
+                            first_removal_order_count=sorted_order_count
 
             elif last_element in {3, 5} and OD[1] in unique_od_test_list:
                 is_same_order = all(item in order for item in OD[:-1]) and \
@@ -612,7 +640,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                     value = OD_dict.get(key)
                     #print(value)  # Output: value1
                     #print("3")
-                    if key + 1 in OD_dict:
+                    if (key + 1 in OD_dict) and (key + 1 not in keys_to_remove):
                         keys_to_remove.append(key)
                     else:
                         unique_od_test_list.remove(OD[1])
@@ -620,6 +648,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                         if first_od_detect_flag and first_remove_flag:
                             print(f"First removal from unique_od_test_list at sorted_order_count: {sorted_order_count}")
                             first_remove_flag = False
+                            first_removal_order_count=sorted_order_count
 
             elif last_element == 4 and OD[0] in unique_od_test_list:
                 temp_list = [od[1] for k, od in OD_dict_copy.items() if od[0] == OD[0] and od[-1] == 4]
@@ -627,7 +656,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                     value = OD_dict.get(key)
                     #print(value)  # Output: value1
                     #print("4")
-                    if key - 1 in OD_dict:
+                    if (key - 1 in OD_dict) and (key - 1 not in keys_to_remove):
                         keys_to_remove.append(key)
                     else:
                         unique_od_test_list.remove(OD[0])
@@ -635,6 +664,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                         if first_od_detect_flag and first_remove_flag:
                             print(f"First removal from unique_od_test_list at sorted_order_count: {sorted_order_count}")
                             first_remove_flag = False
+                            first_removal_order_count=sorted_order_count
 
 
             elif last_element == 6 and OD[0] in unique_od_test_list:
@@ -645,7 +675,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                     value = OD_dict.get(key)
                     #print(value)  # Output: value1
                     #print("5")
-                    if key - 1 in OD_dict:
+                    if (key - 1 in OD_dict) and (key - 1 not in keys_to_remove):
                         keys_to_remove.append(key)
                     else:
                         unique_od_test_list.remove(OD[0])
@@ -653,17 +683,18 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                         if first_od_detect_flag and first_remove_flag:
                             print(f"First removal from unique_od_test_list at sorted_order_count: {sorted_order_count}")
                             first_remove_flag = False
+                            first_removal_order_count=sorted_order_count
 
         for key in keys_to_remove:
             OD_dict.pop(key, None)
 
         if len(unique_od_test_list) == 0:
-            return sorted_order_count, OD_found, OD_dict
+            return sorted_order_count,first_removal_order_count
 
     if len(unique_od_test_list) != 0:
         print(unique_od_test_list)
-
-    return sorted_order_count, OD_found, OD_dict
+    #print("---")
+    return sorted_order_count,first_removal_order_count
 
 
 
@@ -855,6 +886,7 @@ def are_lists_of_lists_equal(list1, list2):
 
     return True
 if __name__ == "__main__":
+    exit(1)
     data = []
     row = []
     t = int(input("Please enter a t-value: "))
