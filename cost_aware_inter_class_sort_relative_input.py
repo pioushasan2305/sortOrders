@@ -166,8 +166,9 @@ if __name__ == "__main__":
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
-            sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_cost_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
-            print(f"Number of needed order in sorted: {sorted_order_count}")
+            #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_cost_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
+            #print(f"Number of needed order in sorted: {sorted_order_count}")
+            sorted_order_count= first_removal_order_count=0
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
