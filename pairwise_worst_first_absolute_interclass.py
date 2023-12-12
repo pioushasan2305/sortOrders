@@ -7,7 +7,17 @@ import shutil
 import sys
 import random
 import string
+import logging
+import signal
+logging.basicConfig(filename='event.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
+
+def signal_handler(sig, frame):
+    logging.info(f'Received signal: {sig}')
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, module, worst_first_index):
+    logging.info('Started sort_orders_based_on_coverage_and_worst_first')
 
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
     start_time = time.time()
@@ -109,60 +119,69 @@ def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, mod
 
     total_time_taken = time.time() - start_time
     print(f"Total time taken: {total_time_taken:.4f} seconds for optimized sort in t-wise")
+    logging.info('Finished sort_orders_based_on_coverage_and_worst_first')
     return sorted_orders,total_time_taken
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python script.py <path_to_csv_file>")
-        sys.exit(1)
-    parent_dir_name = "pairwise worst first absolute interclass OD"
-    parent_dir_path = os.path.join(parent_dir_name)
+    logging.info('Script started')
+    try:
+        if len(sys.argv) < 2:
+            print("Usage: python script.py <path_to_csv_file>")
+            sys.exit(1)
+        parent_dir_name = "pairwise worst first absolute interclass OD"
+        parent_dir_path = os.path.join(parent_dir_name)
 
-    # Create the parent directory without module name
-    if not os.path.exists(parent_dir_path):
-        os.makedirs(parent_dir_path)
+        # Create the parent directory without module name
+        if not os.path.exists(parent_dir_path):
+            os.makedirs(parent_dir_path)
 
-    #CSV file paths
-    csv_file_path = os.path.join(parent_dir_name, f"OD_detection_stats.csv")
+        #CSV file paths
+        csv_file_path = os.path.join(parent_dir_name, f"OD_detection_stats.csv")
 
-    # Delete existing CSV file if they exist
-    if os.path.exists(csv_file_path):
-        os.remove(csv_file_path)
+        # Delete existing CSV file if they exist
+        if os.path.exists(csv_file_path):
+            os.remove(csv_file_path)
 
 
-    # CSV file setup
-    with open(csv_file_path, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Project Name", "Module Name", "String to in conversion time ", "First OD detection Order No","Total order no to detect all OD","Total time Taken"])
+        # CSV file setup
+        with open(csv_file_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Project Name", "Module Name", "String to in conversion time ", "First OD detection Order No","Total order no to detect all OD","Total time Taken"])
 
-    input_csv = sys.argv[1]  # Get CSV file path from command line argument
+        input_csv = sys.argv[1]  # Get CSV file path from command line argument
 
-    with open(input_csv, mode='r', newline='', encoding='utf-8') as file:
-        csv_reader = csv.reader(file)
-        next(csv_reader)  # Skip the header row
+        with open(input_csv, mode='r', newline='', encoding='utf-8') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip the header row
 
-        for row in csv_reader:
-            github_slug = row[0]
-            module = row[1]
-            t = int(row[2])
-            target_path = row[3]
-            target_path_polluter_cleaner = row[4]
-            original_order = row[5]
-            print(original_order)
-            result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
-            orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
-            orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
-            order_max_inter_class_copy=copy.deepcopy(orders)
-            order_summary_copy=copy.deepcopy(orders)
-            method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
-            order_sorted_copy_worst_first= copy.deepcopy(orders)
-            worst_first_index=rank_orders.get_worst_first_orders_index(order_sorted_copy_worst_first,method_summary,t)
-            sorted_orders_max_inter_class,total_time_taken_to_sort = sort_orders_based_on_coverage_and_worst_first(order_max_inter_class_copy, t ,method_summary ,module ,worst_first_index)
-            copy_of_results_sorted = copy.deepcopy(result)
-            copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
+            for row in csv_reader:
+                github_slug = row[0]
+                module = row[1]
+                t = int(row[2])
+                target_path = row[3]
+                target_path_polluter_cleaner = row[4]
+                original_order = row[5]
+                print(original_order)
+                result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
+                orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
+                orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
+                order_max_inter_class_copy=copy.deepcopy(orders)
+                order_summary_copy=copy.deepcopy(orders)
+                method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
+                order_sorted_copy_worst_first= copy.deepcopy(orders)
+                worst_first_index=rank_orders.get_worst_first_orders_index(order_sorted_copy_worst_first,method_summary,t)
+                sorted_orders_max_inter_class,total_time_taken_to_sort = sort_orders_based_on_coverage_and_worst_first(order_max_inter_class_copy, t ,method_summary ,module ,worst_first_index)
+                copy_of_results_sorted = copy.deepcopy(result)
+                copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
-            #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_max_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
-            #print(f"Number of needed order in sorted: {sorted_order_count}")
-            sorted_order_count=first_removal_order_count=0
-            with open(csv_file_path, 'a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
+                #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_max_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
+                #print(f"Number of needed order in sorted: {sorted_order_count}")
+                sorted_order_count=first_removal_order_count=0
+                with open(csv_file_path, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
+
+    except Exception as e:
+            logging.error(f'Error occurred: {e}', exc_info=True)
+
+    finally:
+        logging.info('Script stopped')
