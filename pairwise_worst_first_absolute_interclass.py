@@ -9,6 +9,7 @@ import random
 import string
 import logging
 import signal
+from memory_profiler import profile
 logging.basicConfig(filename='event.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
 def signal_handler(sig, frame):
@@ -16,6 +17,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+@profile
 def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, module, worst_first_index):
     logging.info('Started sort_orders_based_on_coverage_and_worst_first')
 

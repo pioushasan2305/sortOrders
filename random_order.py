@@ -59,7 +59,7 @@ if __name__ == "__main__":
                 random_seed = i  # Use the iteration index as the random seed
                 random.seed(random_seed)
                 random.shuffle(shuffled_orders)
-                order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(shuffled_orders, copy_of_results, copy_of_unique_od_test_list,False)
+                order_count, first_removal_order_count = find_OD_in_sorted_orders(shuffled_orders, copy_of_results, copy_of_unique_od_test_list,False)
                 #print(f"Index- {i}")
                 #print(order_count)
                 total_rank_point=total_rank_point+order_count

@@ -599,6 +599,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
 
             if last_element == 1 and OD[1] in unique_od_test_list:
                 is_consecutive = order.index(OD[0]) + 1 == order.index(OD[1]) if OD[0] in order and OD[1] in order else False
+
                 if is_consecutive:
                     value = OD_dict.get(key)
                     #print(value)  # Output: value1
