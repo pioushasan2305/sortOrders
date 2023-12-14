@@ -93,7 +93,7 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
                                 break
                         else:
                             # polluter_item is before temp_first; check positions of all items in temp_cleaner
-                            if not all(temp_first_index > order.index(cleaner_item) > polluter_index for cleaner_item in temp_cleaner if cleaner_item in order):
+                            if not any(temp_first_index > order.index(cleaner_item) > polluter_index for cleaner_item in temp_cleaner if cleaner_item in order):
                                 pass_sequence = False
                                 break
 
@@ -101,7 +101,7 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
                 # pass_sequence will be True if all conditions are met for each polluter_item, else False
 
 
-                if all_items_after_temp_first and pass_sequence:
+                if all_items_after_temp_first or pass_sequence:
                     itm="pass"
                     if temp_first in unique_od_test_list_dict:
                         value = unique_od_test_list_dict[temp_first]
@@ -129,19 +129,19 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
                                     first_removal_order_count=sorted_order_count
 
             elif last_element ==3 and OD[1] in unique_od_test_list:
-                            is_same_order = all(item in order for item in OD[:-1]) and \
-                                            order.index(OD[0]) < order.index(OD[1])
-                            if is_same_order:
-                                itm="pass"
-                                if OD[1] in unique_od_test_list_dict:
-                                    value = unique_od_test_list_dict[OD[1]]
-                                    if itm in value:
-                                        value.remove(itm)
-                                        if not value:
-                                            unique_od_test_list.remove(OD[1])
-                                            if first_od_detect_flag and first_remove_flag:
-                                                first_remove_flag = False
-                                                first_removal_order_count=sorted_order_count
+                is_same_order = all(item in order for item in OD[:-1]) and \
+                                order.index(OD[0]) < order.index(OD[1])
+                if is_same_order:
+                    itm="pass"
+                    if OD[1] in unique_od_test_list_dict:
+                        value = unique_od_test_list_dict[OD[1]]
+                        if itm in value:
+                            value.remove(itm)
+                            if not value:
+                                unique_od_test_list.remove(OD[1])
+                                if first_od_detect_flag and first_remove_flag:
+                                    first_remove_flag = False
+                                    first_removal_order_count=sorted_order_count
 
             elif last_element == 4 and OD[0] in unique_od_test_list:
                 temp_list = [od[1] for k, od in OD_dict_copy.items() if od[0] == OD[0] and od[-1] == 4]
@@ -165,7 +165,8 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
             return sorted_order_count,first_removal_order_count
 
     if len(unique_od_test_list) != 0:
-        print(f"Not detected: {sorted_order_count}")
+        print(f"Not detected: {unique_od_test_list_dict}")
+        print(f"Not detected total: {len(unique_od_test_list)}")
     #print("---")
     return sorted_order_count,first_removal_order_count
 if __name__ == "__main__":
