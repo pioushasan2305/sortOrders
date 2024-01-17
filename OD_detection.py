@@ -59,7 +59,7 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
                                     first_remove_flag = False
                                     first_removal_order_count=sorted_order_count
 
-            elif last_element in {2, 6}  and OD[2] in unique_od_test_list:
+            elif (last_element == 2 and OD[2] in unique_od_test_list) or (last_element == 6 and OD[0] in unique_od_test_list):
                 polluter_list = [od[0] for od in OD_dict_copy.values() if od[-1] == 2 and od[-2] == OD[-2]] + \
                                 [od[1] for od in OD_dict_copy.values() if od[-1] == 6 and od[0] == OD[0]]
 
