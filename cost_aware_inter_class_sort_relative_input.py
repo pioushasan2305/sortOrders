@@ -7,6 +7,7 @@ import shutil
 import sys
 import random
 import string
+import OD_detection
 def sort_orders_based_on_cost(orders, t,module):
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
     order_interclass_copy = copy.deepcopy(orders)
@@ -118,7 +119,7 @@ def sort_orders_based_on_cost(orders, t,module):
 
     total_time_taken = time.time() - start_time
     print(f"Total time taken: {total_time_taken:.4f} seconds for optimized sort in t-wise")
-    return sorted_orders,total_time_taken
+    return sorted_orders,total_time_taken,dir_name
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -162,13 +163,15 @@ if __name__ == "__main__":
             orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
             orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
             order_cost_inter_class_copy=copy.deepcopy(orders)
-            sorted_orders_cost_inter_class,total_time_taken_to_sort =sort_orders_based_on_cost(order_cost_inter_class_copy, t ,module)
+            sorted_orders_cost_inter_class,total_time_taken_to_sort,sorted_orders_path =sort_orders_based_on_cost(order_cost_inter_class_copy, t ,module)
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
             #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_cost_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
             #print(f"Number of needed order in sorted: {sorted_order_count}")
-            sorted_order_count= first_removal_order_count=0
+            converted_dict = OD_detection.convert_to_key_value_pairs(unique_od_test_list)
+            sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
+            #sorted_order_count= first_removal_order_count=0
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])

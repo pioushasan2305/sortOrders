@@ -7,6 +7,7 @@ import shutil
 import sys
 import random
 import string
+import OD_detection
 def sort_orders_based_on_static_field_covered(orders, current_superset,method_summary,module):
     sorted_orders = []
     t=2
@@ -121,7 +122,7 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
     total_time_taken = time.time() - start_time
     print(f"Total time taken: {total_time_taken:.4f} seconds for static field pairs")
     ##coverage = 100 * (total_permutations - len(current_superset)) / total_permutations
-    return sorted_orders,total_time_taken
+    return sorted_orders,total_time_taken,dir_name
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <path_to_csv_file>")
@@ -171,14 +172,16 @@ if __name__ == "__main__":
             order_summary_copy=copy.deepcopy(orders)
             order_sorted_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
-            sorted_orders_based_on_static,time_taken_static=sort_orders_based_on_static_field_covered(order_sorted_copy,pairs_superset,method_summary,module)
+            sorted_orders_based_on_static,time_taken_static,sorted_orders_path=sort_orders_based_on_static_field_covered(order_sorted_copy,pairs_superset,method_summary,module)
             sorted_orders_based_on_static_copy=copy.deepcopy(sorted_orders_based_on_static)
 
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
             #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_based_on_static_copy, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
             #print(f"Number of needed order in sorted: {sorted_order_count}")
-            sorted_order_count=first_removal_order_count=0
+            #sorted_order_count=first_removal_order_count=0
+            converted_dict = OD_detection.convert_to_key_value_pairs(unique_od_test_list)
+            sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,time_taken_static])

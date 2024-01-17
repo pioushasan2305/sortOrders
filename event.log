@@ -6,3 +6,20 @@
 2023-12-12 15:43:28,154 INFO:Started sort_orders_based_on_coverage_and_worst_first
 2023-12-12 16:05:26,301 INFO:Finished sort_orders_based_on_coverage_and_worst_first
 2023-12-12 16:05:26,305 INFO:Script stopped
+2024-01-17 04:44:59,851 INFO:Script started
+2024-01-17 04:44:59,883 INFO:Started sort_orders_based_on_coverage_and_worst_first
+2024-01-17 04:45:00,953 INFO:Finished sort_orders_based_on_coverage_and_worst_first
+2024-01-17 04:45:01,003 INFO:Started sort_orders_based_on_coverage_and_worst_first
+2024-01-17 04:45:31,286 INFO:Finished sort_orders_based_on_coverage_and_worst_first
+2024-01-17 04:45:31,531 INFO:Started sort_orders_based_on_coverage_and_worst_first
+2024-01-17 04:50:11,070 ERROR:Error occurred: [Errno 2] No such file or directory: 'pairwise worst first absolute interclass/activiti-spring-boot-starter/order_215'
+Traceback (most recent call last):
+  File "/home/pious/Documents/rank/sortOrders/pairwise_worst_first_absolute_interclass.py", line 175, in <module>
+    writer = csv.writer(file)
+  File "/home/pious/.local/lib/python3.10/site-packages/memory_profiler.py", line 1188, in wrapper
+    val = prof(func)(*args, **kwargs)
+  File "/home/pious/.local/lib/python3.10/site-packages/memory_profiler.py", line 761, in f
+    return func(*args, **kwds)
+  File "/home/pious/Documents/rank/sortOrders/pairwise_worst_first_absolute_interclass.py", line 105, in sort_orders_based_on_coverage_and_worst_first
+FileNotFoundError: [Errno 2] No such file or directory: 'pairwise worst first absolute interclass/activiti-spring-boot-starter/order_215'
+2024-01-17 04:50:11,071 INFO:Script stopped

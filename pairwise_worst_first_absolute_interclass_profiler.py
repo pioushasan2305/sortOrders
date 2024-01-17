@@ -8,11 +8,19 @@ import sys
 import random
 import string
 import logging
+import signal
+from memory_profiler import profile
 import OD_detection
+logging.basicConfig(filename='event.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
-
+def signal_handler(sig, frame):
+    logging.info(f'Received signal: {sig}')
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+@profile
 def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, module, worst_first_index):
-
+    logging.info('Started sort_orders_based_on_coverage_and_worst_first')
 
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
     start_time = time.time()
@@ -114,8 +122,10 @@ def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, mod
 
     total_time_taken = time.time() - start_time
     print(f"Total time taken: {total_time_taken:.4f} seconds for optimized sort in t-wise")
+    logging.info('Finished sort_orders_based_on_coverage_and_worst_first')
     return sorted_orders,total_time_taken,dir_name
 if __name__ == "__main__":
+    logging.info('Script started')
     try:
         if len(sys.argv) < 2:
             print("Usage: python script.py <path_to_csv_file>")
@@ -176,7 +186,7 @@ if __name__ == "__main__":
                     writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
 
     except Exception as e:
-            print(f"Error occurred: {e}")
+            logging.error(f'Error occurred: {e}', exc_info=True)
 
     finally:
-        print("Script finished")
+        logging.info('Script stopped')
