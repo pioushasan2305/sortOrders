@@ -41,7 +41,7 @@ def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
     # CSV file setup
     with open(csv_file_path, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Order Number", "Time Taken to Sort", "Tie Break Count", "Tie of Tie Break Count"])
+        writer.writerow(["Order Number", "Time Taken to Sort", "Tie Break Count", "Tie of Tie Break Count","index Chosen"])
 
     # Sorting logic
     file_count = tie_break_count = tie_of_tie_break_count = 0
@@ -50,8 +50,8 @@ def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
         max_order_index = -1
         order_start_time = time.time()
 
-        if time.time() - start_time > 12 * 3600:
-            print("60 seconds time limit reached. Stopping the sorting process.")
+        if time.time() - start_time > 24 * 3600:
+            print("24 hours time limit reached. Stopping the sorting process.")
             break
 
         for idx, order in enumerate(orders):
@@ -91,7 +91,7 @@ def sort_orders_based_on_max_inter_class(orders, t, method_summary, module):
             # Write to CSV
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([file_count, time_taken_to_sort, tie_break_count, tie_of_tie_break_count])
+                writer.writerow([file_count, time_taken_to_sort, tie_break_count, tie_of_tie_break_count,idx])
 
             # Reset tie counts
             tie_break_count = tie_of_tie_break_count = 0
