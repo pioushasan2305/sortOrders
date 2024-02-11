@@ -53,8 +53,8 @@ def sort_orders_based_on_best_first_and_static_fields(orders, t, method_summary,
         max_order_index = -1
         order_start_time = time.time()
 
-        if time.time() - start_time > 24 * 3600:
-            print("24 hours time limit reached. Stopping the sorting process.")
+        if time.time() - start_time > 12 * 3600:
+            print("12 hours time limit reached. Stopping the sorting process.")
             break
 
         for idx, order in enumerate(orders):

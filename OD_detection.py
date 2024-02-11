@@ -167,6 +167,7 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
     if len(unique_od_test_list) != 0:
         print(f"Not detected: {unique_od_test_list_dict}")
         print(f"Not detected total: {len(unique_od_test_list)}")
+        return 0,first_removal_order_count
     #print("---")
     return sorted_order_count,first_removal_order_count
 if __name__ == "__main__":
