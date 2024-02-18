@@ -9,6 +9,31 @@ import csv
 import random
 import copy
 from collections import defaultdict
+def distribute_orders_evenly(orders, total_instances, instance_no):
+    total_orders = len(orders)
+    # Ensure total_instances and instance_no are integers
+    total_instances = int(total_instances)
+    instance_no = int(instance_no)
+
+    orders_per_instance, extras = divmod(total_orders, total_instances)
+
+    # Calculate the start index for the current instance_no
+    if instance_no <= extras:  # If instance_no is within the range of having an extra order
+        start_index = instance_no * (orders_per_instance + 1) - (orders_per_instance + 1)
+    else:
+        start_index = extras * (orders_per_instance + 1) + (instance_no - extras - 1) * orders_per_instance
+
+    # Calculate the number of orders for the current instance_no
+    if instance_no <= extras:
+        num_orders = orders_per_instance + 1
+    else:
+        num_orders = orders_per_instance
+
+    # Extract the orders for the current instance_no
+    selected_orders = orders[start_index:start_index + num_orders]
+
+    # Update the return statement to directly provide the expected values
+    return selected_orders, start_index, start_index + num_orders - 1
 
 def get_orders(target_path):
     orders = []
