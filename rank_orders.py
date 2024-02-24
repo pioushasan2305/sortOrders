@@ -8,7 +8,46 @@ import math
 import csv
 import random
 import copy
+import re
 from collections import defaultdict
+def read_directory_data(directory_path, folder_name_prefix):
+    # Initialize the list to hold data from all matching directories
+    all_data = []
+    # Create a regex pattern to match 'folder_name_' followed by a number
+    pattern = re.compile(re.escape(folder_name_prefix) + r'_(\d+)$')
+
+    # Iterate over items in the directory
+    for item in os.listdir(directory_path):
+        # Construct the full path of the item
+        item_path = os.path.join(directory_path, item)
+        # Check if the item is a directory and matches the regex pattern
+        if os.path.isdir(item_path) and pattern.match(item):
+            # Initialize the list to hold data from all files in the current directory
+            dir_data = []
+
+            # Iterate over files in the matching directory
+            for file in os.listdir(item_path):
+                # Construct the full path of the file
+                file_path = os.path.join(item_path, file)
+
+                # Initialize the list to hold data from the current file
+                file_data = []
+
+                # Open and read the file line by line
+                with open(file_path, 'r') as f:
+                    for line in f:
+                        # Strip newline characters and add the line to file_data
+                        file_data.append(line.strip())
+
+                # Add the file_data list to the dir_data list
+                dir_data.append(file_data)
+
+            # Add the dir_data list to the all_data list
+            all_data.append(dir_data)
+
+    # Return the list of lists of lists
+    return all_data
+
 def distribute_orders_evenly(orders, total_instances, instance_no):
     total_orders = len(orders)
     # Ensure total_instances and instance_no are integers
