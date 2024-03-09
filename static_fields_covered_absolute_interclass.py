@@ -8,7 +8,7 @@ import sys
 import random
 import string
 import OD_detection
-def sort_orders_based_on_static_field_covered(orders, current_superset,method_summary,module):
+def sort_orders_based_on_static_field_covered(orders, current_superset,method_summary,module,github_slug):
     sorted_orders = []
     t=2
     start_time = time.time()
@@ -25,8 +25,8 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
     if not os.path.exists(parent_dir_path):
         os.makedirs(parent_dir_path)
     if not module:
-        # Generate a 5-digit random number as a string
-        module = ''.join(random.choice(string.digits) for _ in range(5))
+        module = github_slug.split('/')[-1]
+
 
     # Directory and CSV file paths
     dir_name = os.path.join(parent_dir_name, module)
@@ -172,7 +172,7 @@ if __name__ == "__main__":
             order_summary_copy=copy.deepcopy(orders)
             order_sorted_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
-            sorted_orders_based_on_static,time_taken_static,sorted_orders_path=sort_orders_based_on_static_field_covered(order_sorted_copy,pairs_superset,method_summary,module)
+            sorted_orders_based_on_static,time_taken_static,sorted_orders_path=sort_orders_based_on_static_field_covered(order_sorted_copy,pairs_superset,method_summary,module,github_slug)
             sorted_orders_based_on_static_copy=copy.deepcopy(sorted_orders_based_on_static)
 
             copy_of_results_sorted = copy.deepcopy(result)

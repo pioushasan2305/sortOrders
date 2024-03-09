@@ -20,7 +20,7 @@ def find_OD_in_sorted_orders(sorted_orders_path, OD_dict, unique_od_test_list, f
         file_name = f"order_{sorted_order_count}"
         file_path = os.path.join(sorted_orders_path, file_name)
 
-        if not os.path.exists(sorted_orders_path):
+        if not os.path.exists(sorted_orders_path) or not os.path.exists(file_path):
             break
 
         with open(file_path, 'r') as file:
