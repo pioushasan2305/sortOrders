@@ -11,7 +11,7 @@ import logging
 import OD_detection
 
 
-def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, module, worst_first_index):
+def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, module, worst_first_index,github_slug):
 
 
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
@@ -27,8 +27,7 @@ def sort_orders_based_on_coverage_and_worst_first(orders, t, method_summary, mod
     if not os.path.exists(parent_dir_path):
         os.makedirs(parent_dir_path)
     if not module:
-        # Generate a 5-digit random number as a string
-        module = ''.join(random.choice(string.digits) for _ in range(5))
+        module = github_slug.split('/')[-1]
 
     # Directory and CSV file paths
     dir_name = os.path.join(parent_dir_name, module)
@@ -170,7 +169,7 @@ if __name__ == "__main__":
                 #print(f"Number of needed order in sorted: {sorted_order_count}")
                 #sorted_order_count=first_removal_order_count=0
                 converted_dict = OD_detection.convert_to_key_value_pairs(unique_od_test_list)
-                sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
+                sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict,github_slug)
                 with open(csv_file_path, 'a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])

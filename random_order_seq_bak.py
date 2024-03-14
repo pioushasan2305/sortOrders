@@ -23,7 +23,6 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
     for order in sorted_orders:
         sorted_order_count += 1
         keys_to_remove = []
-        removals_needed = {}
 
 
         for key, OD in OD_dict.items():
@@ -47,10 +46,15 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                 if is_OD1_after_OD0_and_no_temp_list_item_in_between:
                     itm="fail"
                     if OD[1] in unique_od_test_list_dict:
-                        if OD[1] not in removals_needed:
-                            removals_needed[OD[1]] = [itm]
-                        else:
-                            removals_needed[OD[1]].append(itm)
+                        value = unique_od_test_list_dict[OD[1]]
+                        if itm in value:
+                            value.remove(itm)
+                            if not value:
+                                unique_od_test_list.remove(OD[1])
+                                if first_od_detect_flag and first_remove_flag:
+                                    first_remove_flag = False
+                                    first_removal_order_count=sorted_order_count
+
 
             elif (last_element == 2 and OD[2] in unique_od_test_list) or (last_element == 6 and OD[0] in unique_od_test_list):
                 polluter_list = [od[0] for od in OD_dict_copy.values() if od[-1] == 2 and od[-2] == OD[-2]] + \
@@ -86,7 +90,7 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                                 break
                         else:
                             # polluter_item is before temp_first; check positions of all items in temp_cleaner
-                            if not any(temp_first_index > order.index(cleaner_item) > polluter_index for cleaner_item in temp_cleaner if cleaner_item in order):
+                            if not all(temp_first_index > order.index(cleaner_item) > polluter_index for cleaner_item in temp_cleaner if cleaner_item in order):
                                 pass_sequence = False
                                 break
 
@@ -94,13 +98,18 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                 # pass_sequence will be True if all conditions are met for each polluter_item, else False
 
 
-                if all_items_after_temp_first or pass_sequence:
+                if all_items_after_temp_first and pass_sequence:
                     itm="pass"
                     if temp_first in unique_od_test_list_dict:
-                        if temp_first not in removals_needed:
-                            removals_needed[temp_first] = [itm]
-                        else:
-                            removals_needed[temp_first].append(itm)
+                        value = unique_od_test_list_dict[temp_first]
+                        if itm in value:
+                            value.remove(itm)
+                            if not value:
+                                unique_od_test_list.remove(temp_first)
+                                if first_od_detect_flag and first_remove_flag:
+                                    first_remove_flag = False
+                                    first_removal_order_count=sorted_order_count
+
 
             elif last_element ==5 and OD[1] in unique_od_test_list:
                 is_same_order = all(item in order for item in OD[:-1]) and \
@@ -108,50 +117,53 @@ def find_OD_in_sorted_orders(sorted_orders, OD_dict, unique_od_test_list, first_
                 if is_same_order:
                     itm="fail"
                     if OD[1] in unique_od_test_list_dict:
-                        if OD[1] not in removals_needed:
-                            removals_needed[OD[1]] = [itm]
-                        else:
-                            removals_needed[OD[1]].append(itm)
+                        value = unique_od_test_list_dict[OD[1]]
+                        if itm in value:
+                            value.remove(itm)
+                            if not value:
+                                unique_od_test_list.remove(OD[1])
+                                if first_od_detect_flag and first_remove_flag:
+                                    first_remove_flag = False
+                                    first_removal_order_count=sorted_order_count
+
 
             elif last_element ==3 and OD[1] in unique_od_test_list:
-                is_same_order = all(item in order for item in OD[:-1]) and \
-                                order.index(OD[0]) < order.index(OD[1])
-                if is_same_order:
-                    itm="pass"
-                    if OD[1] in unique_od_test_list_dict:
-                        if OD[1] not in removals_needed:
-                            removals_needed[OD[1]] = [itm]
-                        else:
-                            removals_needed[OD[1]].append(itm)
+                            is_same_order = all(item in order for item in OD[:-1]) and \
+                                            order.index(OD[0]) < order.index(OD[1])
+                            if is_same_order:
+                                itm="pass"
+                                if OD[1] in unique_od_test_list_dict:
+                                    value = unique_od_test_list_dict[OD[1]]
+                                    if itm in value:
+                                        value.remove(itm)
+                                        if not value:
+                                            unique_od_test_list.remove(OD[1])
+                                            if first_od_detect_flag and first_remove_flag:
+                                                first_remove_flag = False
+                                                first_removal_order_count=sorted_order_count
+
 
             elif last_element == 4 and OD[0] in unique_od_test_list:
                 temp_list = [od[1] for k, od in OD_dict_copy.items() if od[0] == OD[0] and od[-1] == 4]
                 if all(order.index(OD[0]) < order.index(item) for item in temp_list):
                     itm="fail"
                     if OD[0] in unique_od_test_list_dict:
-                        if OD[0] not in removals_needed:
-                            removals_needed[OD[0]] = [itm]
-                        else:
-                            removals_needed[OD[0]].append(itm)
-        for key, results in removals_needed.items():
-            if "fail" in results:
-                removals_needed[key] = "fail"
-            else:
-                removals_needed[key] = "pass"
-        #print(removals_needed)
-        for key, itm in removals_needed.items():
-            value = unique_od_test_list_dict[key]
-            if itm in value:
-                value.remove(itm)
-                if not value:
-                    unique_od_test_list.remove(key)
-                    if first_od_detect_flag and first_remove_flag:
-                        first_remove_flag = False
-                        first_removal_order_count = sorted_order_count
+                        value = unique_od_test_list_dict[OD[0]]
+                        if itm in value:
+                            value.remove(itm)
+                            if not value:
+                                unique_od_test_list.remove(OD[0])
+                                if first_od_detect_flag and first_remove_flag:
+                                    first_remove_flag = False
+                                    first_removal_order_count=sorted_order_count
+
+
+            if len(unique_od_test_list) == 0:
+                return sorted_order_count,first_removal_order_count,1
 
 
         if len(unique_od_test_list) == 0:
-            return sorted_order_count, first_removal_order_count ,1
+            return sorted_order_count,first_removal_order_count,1
 
     if len(unique_od_test_list) != 0:
         print(f"Not detected: {sorted_order_count}")
@@ -199,7 +211,7 @@ if __name__ == "__main__":
             print(github_slug)
             print(module)
             runtime = float(runtime)
-            total_orders_to_run=(3600) // runtime
+            total_orders_to_run=(24 * 3600) // runtime
             result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
             orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
             orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
@@ -238,19 +250,18 @@ if __name__ == "__main__":
                 writer_stats.writerow(["Random Seed no", "first OD detected", "All OD detected", "Detection flag"])
             for i in range(num_shuffle_iterations):
                 shuffled_orders = copy.deepcopy(orders)  # Create a copy of the original orders
-                total_orders_to_run = int(total_orders_to_run)
-                if total_orders_to_run > len(orders):
-                    shuffled_orders = orders  # Use the whole list
-                else:
-                    shuffled_orders = orders[:total_orders_to_run]
                 copy_of_results = copy.deepcopy(result)
                 copy_of_unique_od_test_list = copy.deepcopy(unique_od_test_list)
                 random_seed = i  # Use the iteration index as the random seed
                 random.seed(random_seed)
                 random.shuffle(shuffled_orders)
                 converted_dict = convert_to_key_value_pairs(unique_od_test_list)
-
-                order_count, first_removal_order_count,detection_flag = find_OD_in_sorted_orders(shuffled_orders, copy_of_results, copy_of_unique_od_test_list,True,converted_dict)
+                total_orders_to_run = int(total_orders_to_run)
+                if total_orders_to_run > len(shuffled_orders):
+                    shuffled_orders_subset = shuffled_orders  # Use the whole list
+                else:
+                    shuffled_orders_subset = shuffled_orders[:total_orders_to_run]
+                order_count, first_removal_order_count,detection_flag = find_OD_in_sorted_orders(shuffled_orders_subset, copy_of_results, copy_of_unique_od_test_list,True,converted_dict)
                 #print(f"Index- {i}")
                 #print(order_count)
                 total_rank_point=total_rank_point+order_count

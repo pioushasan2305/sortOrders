@@ -8,7 +8,7 @@ import sys
 import random
 import string
 import OD_detection
-def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, module, best_first_index):
+def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, module, best_first_index,github_slug):
 
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
     start_time = time.time()
@@ -23,8 +23,7 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
     if not os.path.exists(parent_dir_path):
         os.makedirs(parent_dir_path)
     if not module:
-        # Generate a 5-digit random number as a string
-        module = ''.join(random.choice(string.digits) for _ in range(5))
+        module = github_slug.split('/')[-1]
 
     # Directory and CSV file paths
     dir_name = os.path.join(parent_dir_name, module)
@@ -148,18 +147,22 @@ if __name__ == "__main__":
             target_path = row[3]
             target_path_polluter_cleaner = row[4]
             original_order = row[5]
-            random_order_count = int(row[8])
+            runtime = row[7]
+            runtime = float(runtime)
+            random_order_count = (3600) // runtime
             result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
             orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
             orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
-            orders = orders[:random_order_count]
+            random_order_count = int(random_order_count)
+            if random_order_count < len(orders):
+                orders = orders[:random_order_count]
             order_max_inter_class_copy=copy.deepcopy(orders)
             order_summary_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
             order_sorted_copy_best_first= copy.deepcopy(orders)
             best_first_index=rank_orders.get_best_first_orders_index(order_sorted_copy_best_first,method_summary,t)
             print(best_first_index)
-            sorted_orders_max_inter_class,total_time_taken_to_sort,sorted_orders_path =sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index)
+            sorted_orders_max_inter_class,total_time_taken_to_sort,sorted_orders_path =sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index,github_slug)
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
