@@ -12,6 +12,7 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
     sorted_orders = []
     t=2
     start_time = time.time()
+    print(start_time)
     total_no_of_orders=len(orders)
     order_num = 1
     prev_max_cover = 0
@@ -54,11 +55,16 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
             break
         time_records = []
         order_start_time = time.time()
-
         if time.time() - start_time > 12 * 3600:
             print("12 hours time limit reached. Stopping the sorting process.")
             break
+
+
         while orders and current_superset:
+            print(time.time())
+            if time.time() - start_time > 12 * 3600:
+                print("12 hours time limit reached. Stopping the sorting process.")
+                break
             before_sorting = time.time()
             max_cover = 0
             max_method_count=0

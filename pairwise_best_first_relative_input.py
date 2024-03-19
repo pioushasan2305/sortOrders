@@ -56,6 +56,9 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
             break
 
         for idx, order in enumerate(orders):
+            if time.time() - start_time > 12 * 3600:
+                print("12 hours time limit reached. Stopping the sorting process.")
+                break
             if first_flag == 0:
                 max_order_index=best_first_index
                 first_flag=1

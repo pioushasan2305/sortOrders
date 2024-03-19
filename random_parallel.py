@@ -199,7 +199,7 @@ if __name__ == "__main__":
             print(github_slug)
             print(module)
             runtime = float(runtime)
-            total_orders_to_run=(12*3600) // runtime
+            total_orders_to_run=(24*3600) // runtime
             result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
             orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
             orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
@@ -209,7 +209,7 @@ if __name__ == "__main__":
             start_time = time.time()
 
             #####
-            parent_dir_name_stats = "Random Order In 12 hr sequence stats"
+            parent_dir_name_stats = "Random Order In 24 hr parallel stats"
             parent_dir_path_stats = os.path.join(parent_dir_name_stats)
 
                 # Create the parent directory without module name
