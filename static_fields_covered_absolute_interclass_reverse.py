@@ -19,7 +19,7 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
     current_superset = current_superset
     total_permutations=len(current_superset)
     max_cover_flag=0
-    parent_dir_name = "Static fields covered absolute interclass orders"
+    parent_dir_name = "Static fields covered absolute interclass orders reverse"
     parent_dir_path = os.path.join(parent_dir_name)
 
         # Create the parent directory without module name
@@ -111,24 +111,42 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
                     writer = csv.writer(file)
                     writer.writerow([file_count, time_taken_to_sort, tie_break_count, tie_of_tie_break_count])
 
+                # Processing for reverse_order
+                reverse_order = best_order[::-1]
+                sorted_orders.append(reverse_order)
+                reverse_order_combinations = rank_orders.get_consecutive_t_combinations(reverse_order, t)
+                current_superset -= reverse_order_combinations
+                # Save the reverse_order in a file
+                reverse_file_path = os.path.join(dir_name, f"order_{file_count}")
+                with open(reverse_file_path, 'w') as file:
+                    file.write('\n'.join(str(item) for item in reverse_order))
+
+                # Write to CSV for reverse_order, with specified fields set to 0 except for file_count
+                with open(csv_file_path, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([file_count, 0, 0, 0, 0])  # Note: Adjusted as per instruction, keeping file_count
+
+                # Increment file_count after handling reverse_order
+                file_count += 1
+
                 # Reset tie counts
                 tie_break_count = tie_of_tie_break_count = 0
             else:
                 # If no best order is found, add the remaining orders to sorted_orders and break
-                for order in orders + orders_with_no_cover:
-                    # Save each order in a file
-                    file_path = os.path.join(dir_name, f"order_{file_count}")
-                    with open(file_path, 'w') as file:
-                        file.write('\n'.join(str(item) for item in order))
-                    file_count += 1
-                sorted_orders.extend(orders)
-                sorted_orders.extend(orders_with_no_cover)
                 #total_time_taken = time.time() - start_time
                 #print(f"Total time taken: {total_time_taken:.4f} seconds for optimized sort in t-wise")
                 break
             orders = [order for order in orders if order not in orders_with_no_cover]
 
 
+    for order in orders + orders_with_no_cover:
+        # Save each order in a file
+        file_path = os.path.join(dir_name, f"order_{file_count}")
+        with open(file_path, 'w') as file:
+            file.write('\n'.join(str(item) for item in order))
+        file_count += 1
+    sorted_orders.extend(orders)
+    sorted_orders.extend(orders_with_no_cover)
     # If there are still orders left, but the superset is empty
     if current_superset:
         #print(f"Not covered pairs are - {current_superset}")
@@ -146,7 +164,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <path_to_csv_file>")
         sys.exit(1)
-    parent_dir_name = "Static fields covered absolute interclass OD"
+    parent_dir_name = "Static fields covered absolute interclass OD Reverse"
     parent_dir_path = os.path.join(parent_dir_name)
 
     # Create the parent directory without module name

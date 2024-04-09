@@ -12,7 +12,7 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
     sorted_orders = []
     t=2
     start_time = time.time()
-    #print(start_time)
+    print(start_time)
     total_no_of_orders=len(orders)
     order_num = 1
     prev_max_cover = 0
@@ -59,9 +59,9 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
             print("12 hours time limit reached. Stopping the sorting process.")
             break
 
-        orders_with_no_cover = []
+
         while orders and current_superset:
-            #print(time.time())
+            print(time.time())
             if time.time() - start_time > 12 * 3600:
                 print("12 hours time limit reached. Stopping the sorting process.")
                 break
@@ -70,12 +70,8 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
             max_method_count=0
             max_order_index = -1
             for idx, order in enumerate(orders):
-                current_combinations = rank_orders.get_consecutive_t_combinations(order, t)
+                current_combinations = rank_orders.get_consecutive_t_combinations(order, t)  # Assuming this function is defined elsewhere
                 current_cover = len(current_combinations & current_superset)
-                if current_cover == 0:
-                    # Append order to the new list and skip further processing
-                    orders_with_no_cover.append(order)
-                    continue
                 current_interclass_combinations = rank_orders.find_interclass_pairs(order)
                 current_method_count = rank_orders.get_method_count_score_for_interclass_pairs(current_interclass_combinations, method_summary)
                 if (current_cover > max_cover):
@@ -89,8 +85,7 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
                 elif current_cover == max_cover and current_method_count == max_method_count:
                     tie_of_tie_break_count += 1
 
-
-            if max_order_index != -1 or max_cover==0:
+            if max_order_index != -1:
                 #print(max_order_index)
                 order_end_time = time.time()
                 time_taken_to_sort = order_end_time - order_start_time
@@ -115,18 +110,10 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
                 tie_break_count = tie_of_tie_break_count = 0
             else:
                 # If no best order is found, add the remaining orders to sorted_orders and break
-                for order in orders + orders_with_no_cover:
-                    # Save each order in a file
-                    file_path = os.path.join(dir_name, f"order_{file_count}")
-                    with open(file_path, 'w') as file:
-                        file.write('\n'.join(str(item) for item in order))
-                    file_count += 1
                 sorted_orders.extend(orders)
-                sorted_orders.extend(orders_with_no_cover)
                 #total_time_taken = time.time() - start_time
                 #print(f"Total time taken: {total_time_taken:.4f} seconds for optimized sort in t-wise")
                 break
-            orders = [order for order in orders if order not in orders_with_no_cover]
 
 
     # If there are still orders left, but the superset is empty
@@ -180,7 +167,6 @@ if __name__ == "__main__":
             target_path_polluter_cleaner = row[4]
             original_order = row[5]
             file_path_pairs = row[6]
-            print(module)
 
             # Reading tests from file and finding all pairs
             result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
@@ -194,9 +180,6 @@ if __name__ == "__main__":
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
             sorted_orders_based_on_static,time_taken_static,sorted_orders_path=sort_orders_based_on_static_field_covered(order_sorted_copy,pairs_superset,method_summary,module,github_slug)
             sorted_orders_based_on_static_copy=copy.deepcopy(sorted_orders_based_on_static)
-            #print("-----")
-            #print(len(sorted_orders_based_on_static_copy))
-            #print("-----")
 
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
