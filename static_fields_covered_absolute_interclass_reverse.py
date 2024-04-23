@@ -179,10 +179,15 @@ if __name__ == "__main__":
         os.remove(csv_file_path)
 
 
-    # CSV file setup
-    with open(csv_file_path, 'w', newline='') as file:
+    # Check if the CSV exists to determine mode
+    csv_exists = os.path.exists(csv_file_path)
+    csv_file_mode = 'a' if csv_exists else 'w'
+
+    with open(csv_file_path, csv_file_mode, newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Project Name", "Module Name", "String to in conversion time ", "First OD detection Order No","Total order no to detect all OD","Total time Taken"])
+        if not csv_exists:  # If file does not exist, write the header
+            writer.writerow(["Project Name", "Module Name", "String to in conversion time ", "First OD detection Order No","Total order no to detect all OD","Total time Taken"])
+
 
     input_csv = sys.argv[1]  # Get CSV file path from command line argument
 
@@ -194,10 +199,14 @@ if __name__ == "__main__":
             github_slug = row[0]
             module = row[1]
             t = int(row[2])
-            target_path = row[3]
-            target_path_polluter_cleaner = row[4]
-            original_order = row[5]
-            file_path_pairs = row[6]
+            #print("gg")
+            script_dir = os.path.dirname(os.path.realpath(__file__))
+
+            target_path = os.path.join(script_dir, row[3].lstrip('/'))
+            print(target_path)
+            target_path_polluter_cleaner = os.path.join(script_dir, row[4].lstrip('/')) # Assuming you meant to use row[4] for both
+            original_order = os.path.join(script_dir, row[5].lstrip('/'))
+            file_path_pairs  = os.path.join(script_dir, row[6].lstrip('/'))
             print(module)
 
             # Reading tests from file and finding all pairs
