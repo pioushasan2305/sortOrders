@@ -115,14 +115,14 @@ def sort_orders_based_on_static_field_covered(orders, current_superset,method_su
                 tie_break_count = tie_of_tie_break_count = 0
             else:
                 # If no best order is found, add the remaining orders to sorted_orders and break
-                for order in orders + orders_with_no_cover:
+                """ for order in orders + orders_with_no_cover:
                     # Save each order in a file
                     file_path = os.path.join(dir_name, f"order_{file_count}")
                     with open(file_path, 'w') as file:
                         file.write('\n'.join(str(item) for item in order))
                     file_count += 1
                 sorted_orders.extend(orders)
-                sorted_orders.extend(orders_with_no_cover)
+                sorted_orders.extend(orders_with_no_cover) """
                 #total_time_taken = time.time() - start_time
                 #print(f"Total time taken: {total_time_taken:.4f} seconds for optimized sort in t-wise")
                 break
