@@ -916,7 +916,7 @@ def divide_orders(orders, num_divisions=5):
         start = end
 
     return divided_orders
-def read_tests_from_file(filepath):
+""" def read_tests_from_file(filepath):
     tests_with_fields = {}
     with open(filepath, 'r') as file:
         for line in file:
@@ -925,7 +925,21 @@ def read_tests_from_file(filepath):
                 tests_with_fields[test].append(field)
             else:
                 tests_with_fields[test] = [field]
+    return tests_with_fields """
+def read_tests_from_file(filepath):
+    tests_with_fields = {}
+    with open(filepath, 'r') as file:
+        for line in file:
+            parts = line.strip().split(',')
+            if len(parts) == 2:  # Ensure there are exactly two elements after splitting
+                test, field = parts
+                if test in tests_with_fields:
+                    tests_with_fields[test].append(field)
+                else:
+                    tests_with_fields[test] = [field]
+            # If the line doesn't have exactly two parts, it will simply continue to the next iteration
     return tests_with_fields
+
 
 def find_shared_field_pairs(tests):
     shared_pairs = set()  # Initialize as a set
