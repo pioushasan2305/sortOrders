@@ -8,7 +8,7 @@ import sys
 import random
 import string
 import OD_detection
-def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, module, best_first_index,github_slug):
+def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, module, best_first_index):
 
     current_superset = rank_orders.create_superset_from_all_orders(orders, t)
     start_time = time.time()
@@ -16,14 +16,15 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
     sorted_orders = []
 
     # Create nested directory structure
-    parent_dir_name = "pairwise best first relative ordering interclass"
+    parent_dir_name = "pairwise best first absolute interclass"
     parent_dir_path = os.path.join(parent_dir_name)
 
         # Create the parent directory without module name
     if not os.path.exists(parent_dir_path):
         os.makedirs(parent_dir_path)
     if not module:
-        module = github_slug.split('/')[-1]
+        # Generate a 5-digit random number as a string
+        module = ''.join(random.choice(string.digits) for _ in range(5))
 
     # Directory and CSV file paths
     dir_name = os.path.join(parent_dir_name, module)
@@ -44,7 +45,7 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
         writer.writerow(["Order Number", "Time Taken to Sort", "Tie Break Count", "Tie of Tie Break Count","index chosen"])
 
     # Sorting logic
-    file_count = tie_break_count = tie_of_tie_break_count = 0
+    file_count = tie_break_count = tie_of_tie_break_count = first_time= 0
     first_flag=0
     while orders:
         max_cover = max_method_count = 0
@@ -56,9 +57,6 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
             break
 
         for idx, order in enumerate(orders):
-            if time.time() - start_time > 12 * 3600:
-                print("12 hours time limit reached. Stopping the sorting process.")
-                break
             if first_flag == 0:
                 max_order_index=best_first_index
                 first_flag=1
@@ -73,14 +71,20 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
                 max_cover = current_cover
                 max_method_count = current_method_count
                 max_order_index = idx
-            elif current_cover == max_cover:
+            elif current_cover == max_cover and current_method_count > max_method_count:
+                max_method_count = current_method_count
+                max_order_index = idx
                 tie_break_count += 1
+            elif current_cover == max_cover and current_method_count == max_method_count:
+                tie_of_tie_break_count += 1
 
         # Select the best order and update the sets
         if max_order_index != -1:
             order_end_time = time.time()
             time_taken_to_sort = order_end_time - order_start_time
-
+            if first_time==0:
+                time_taken_to_sort=0
+                first_time=1
             best_order = orders.pop(max_order_index)
             sorted_orders.append(best_order)
             best_order_combinations = rank_orders.get_consecutive_t_combinations(best_order, t)
@@ -113,7 +117,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <path_to_csv_file>")
         sys.exit(1)
-    parent_dir_name = "pairwise best first relative ordering interclass OD"
+    parent_dir_name = "pairwise best first absolute interclass OD"
     parent_dir_path = os.path.join(parent_dir_name)
 
     # Create the parent directory without module name
@@ -154,17 +158,17 @@ if __name__ == "__main__":
             order_summary_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
             order_sorted_copy_best_first= copy.deepcopy(orders)
-            best_first_index=rank_orders.get_best_first_orders_index(order_sorted_copy_best_first,method_summary,t)
+            best_first_index=0
             print(best_first_index)
-            sorted_orders_max_inter_class,total_time_taken_to_sort,sorted_orders_path=sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index,github_slug)
+            sorted_orders_max_inter_class,total_time_taken_to_sort,sorted_orders_path =sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index)
             copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
             #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_max_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
             #print(f"Number of needed order in sorted: {sorted_order_count}")
-            #sorted_order_count= first_removal_order_count =0
-            converted_dict = OD_detection.convert_to_key_value_pairs(unique_od_test_list)
+            #sorted_order_count=first_removal_order_count=0
+            """ converted_dict = OD_detection.convert_to_key_value_pairs(unique_od_test_list)
             sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
+                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort]) """

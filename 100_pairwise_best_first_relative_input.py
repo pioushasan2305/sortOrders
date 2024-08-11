@@ -51,8 +51,8 @@ def sort_orders_based_on_coverage_and_best_first(orders, t, method_summary, modu
         max_order_index = -1
         order_start_time = time.time()
 
-        if time.time() - start_time > 24 * 3600:
-            print("24 hours time limit reached. Stopping the sorting process.")
+        if time.time() - start_time > 12 * 3600:
+            print("12 hours time limit reached. Stopping the sorting process.")
             break
 
         for idx, order in enumerate(orders):
@@ -148,8 +148,9 @@ if __name__ == "__main__":
             original_order = row[5]
             print(original_order)
             result,unique_od_test_list = rank_orders.get_victims_or_brittle(github_slug, module,target_path_polluter_cleaner)
-            orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
-            orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
+            #orders_with_num = rank_orders.get_orders_for_line_no(target_path)#
+            #orders,string_conversion_time=rank_orders.replace_numbers_with_strings(orders_with_num,original_order)
+            orders=rank_orders.get_orders_raw(target_path)
             order_max_inter_class_copy=copy.deepcopy(orders)
             order_summary_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
@@ -157,7 +158,7 @@ if __name__ == "__main__":
             best_first_index=rank_orders.get_best_first_orders_index(order_sorted_copy_best_first,method_summary,t)
             print(best_first_index)
             sorted_orders_max_inter_class,total_time_taken_to_sort,sorted_orders_path=sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index,github_slug)
-            copy_of_results_sorted = copy.deepcopy(result)
+            """ copy_of_results_sorted = copy.deepcopy(result)
             copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
             #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_max_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
@@ -167,4 +168,4 @@ if __name__ == "__main__":
             sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
+                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort]) """

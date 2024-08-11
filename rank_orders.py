@@ -100,6 +100,21 @@ def get_orders_for_line_no(target_path):
                 orders.append(current_order)
 
     return orders
+def get_orders_raw(target_path):
+    orders = []
+
+    # Iterate over each file in the directory
+    for filename in os.listdir(target_path):
+        file_path = os.path.join(target_path, filename)
+
+        # Check if it's a file
+        if os.path.isfile(file_path):
+            with open(file_path, "r") as file:
+                # Read each line and strip any surrounding whitespace, then add to a list
+                current_order = [line.strip() for line in file.readlines()]
+                orders.append(current_order)
+
+    return orders
 def replace_numbers_with_strings(matrix, file_path):
     start_time = time.time()  # Start time
 
