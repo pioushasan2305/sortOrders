@@ -193,7 +193,7 @@ if __name__ == "__main__":
             order_sorted_copy=copy.deepcopy(orders)
             method_summary=rank_orders.summarize_test_methods(order_summary_copy[0])
             sorted_orders_based_on_static,time_taken_static,sorted_orders_path=sort_orders_based_on_static_field_covered(order_sorted_copy,pairs_superset,method_summary,module,github_slug)
-            sorted_orders_based_on_static_copy=copy.deepcopy(sorted_orders_based_on_static)
+            """ sorted_orders_based_on_static_copy=copy.deepcopy(sorted_orders_based_on_static)
             #print("-----")
             #print(len(sorted_orders_based_on_static_copy))
             #print("-----")
@@ -207,5 +207,5 @@ if __name__ == "__main__":
             sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
             with open(csv_file_path, 'a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,time_taken_static])
+                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,time_taken_static]) """
 

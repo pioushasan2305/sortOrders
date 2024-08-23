@@ -157,14 +157,4 @@ if __name__ == "__main__":
             best_first_index=rank_orders.get_best_first_orders_index(order_sorted_copy_best_first,method_summary,t)
             print(best_first_index)
             sorted_orders_max_inter_class,total_time_taken_to_sort,sorted_orders_path=sort_orders_based_on_coverage_and_best_first(order_max_inter_class_copy, t ,method_summary ,module ,best_first_index,github_slug)
-            copy_of_results_sorted = copy.deepcopy(result)
-            copy_of_unique_od_test_list_sorted = copy.deepcopy(unique_od_test_list)
 
-            #sorted_order_count, first_removal_order_count = rank_orders.find_OD_in_sorted_orders(sorted_orders_max_inter_class, copy_of_results_sorted ,copy_of_unique_od_test_list_sorted,True)
-            #print(f"Number of needed order in sorted: {sorted_order_count}")
-            #sorted_order_count= first_removal_order_count =0
-            converted_dict = OD_detection.convert_to_key_value_pairs(unique_od_test_list)
-            sorted_order_count, first_removal_order_count=OD_detection.find_OD_in_sorted_orders(sorted_orders_path, result, copy_of_unique_od_test_list_sorted,True, converted_dict)
-            with open(csv_file_path, 'a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([github_slug, module, string_conversion_time, first_removal_order_count,sorted_order_count,total_time_taken_to_sort])
